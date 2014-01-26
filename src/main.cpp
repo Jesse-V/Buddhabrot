@@ -7,34 +7,48 @@
 #include <iostream>
 
 
-const int MAX_DEPTH = 5000; //max iterations to follow the point
-const int SECONDS_TO_WORK = 20; //how long each thread should run for
+const int MAX_THREADS = 3;
+const int MAX_DEPTH = 250; //max iterations to follow the point
+const int SECONDS_TO_WORK = 600; //how long each thread should run for
 const int ITERATION_WORK_BURST = 5000; //how many iterations to go before checking the clock
-const int IMAGE_SIZE = 2048; //size of the resulting image, N * N
-
-
-std::vector<Matrix2D> matrices;
+const int IMAGE_SIZE = 1024; //size of the resulting image, N * N
 
 
 int main(int argc, char** argv)
 {
-    std::future<Matrix2D> instance1 = std::async(std::launch::async, generateBuddhabrotHistogram);
-    std::future<Matrix2D> instance2 = std::async(std::launch::async, generateBuddhabrotHistogram);
+    std::vector<std::future<Matrix2D>> buddhabrots;
+    for (int threadID = 0; threadID < MAX_THREADS; threadID++)
+        buddhabrots.push_back(std::async(std::launch::async, generateBuddhabrotHistogram));
 
-    Matrix2D matrix1 = instance1.get();
-    Matrix2D matrix2 = instance2.get();
+    std::vector<Matrix2D> matrices;
+    for (int threadID = 0; threadID < MAX_THREADS; threadID++)
+        matrices.push_back(buddhabrots[threadID].get());
 
     std::cout << "Writing pre-images... ";
-    writeMatrixToPPM(matrix1, "image_pre1.ppm");
-    writeMatrixToPPM(matrix2, "image_pre2.ppm");
+    for (int threadID = 0; threadID < MAX_THREADS; threadID++)
+    {
+        std::stringstream filename;
+        filename << "image_pre" << threadID << ".ppm";
+        writeMatrixToPPM(matrices[threadID], filename.str());
+    }
     std::cout << "done" << std::endl;
 
     std::cout << "Writing final image... ";
     Matrix2D totalMatrix;
     initializeMatrix(totalMatrix);
     for (int x = 0; x < IMAGE_SIZE; x++)
+    {
         for (int y = 0; y < IMAGE_SIZE; y++)
-            totalMatrix[x][y] = matrix1[x][y] + matrix2[x][y];
+        {
+            for (int threadID = 0; threadID < MAX_THREADS; threadID++)
+            {
+                auto old = totalMatrix[x][y];
+                totalMatrix[x][y] += matrices[threadID][x][y];
+                if (totalMatrix[x][y] < old)
+                    std::cout << "Possible numerical rollover during sum!" << std::endl;
+            }
+        }
+    }
 
     writeMatrixToPPM(totalMatrix, "image.ppm");
     std::cout << "done. Program complete." << std::endl;
@@ -66,8 +80,11 @@ void initializeMatrix(Matrix2D& matrix)
 
 void fillMatrixWithBuddhabrot(Matrix2D& matrix)
 {
+    std::stringstream initialMessage;
+    initialMessage << "Instance Launched. Expect shutdown in " << SECONDS_TO_WORK << " seconds." << std::endl;
+    std::cout << initialMessage.str();
+
     using namespace std::chrono;
-    std::cout << "Instance Launched. Expect shutdown in " << SECONDS_TO_WORK << " seconds." << std::endl;
 
     auto mersenneTwister = getMersenneTwister();
     std::uniform_real_distribution<float> randomFloat(-2, 2);
@@ -112,7 +129,11 @@ void updateCounter(Matrix2D& matrix, float fractalX, float fractalY)
     int y = (int)((fractalY + 2) / 4 * IMAGE_SIZE);
 
     if (x >= 0 && x < IMAGE_SIZE && y >= 0 && y < IMAGE_SIZE)
-        matrix[(std::size_t)x][(std::size_t)y]++;
+    {
+        auto old = matrix[(std::size_t)x][(std::size_t)y]++;
+        if (matrix[(std::size_t)x][(std::size_t)y] < old)
+            std::cout << "Possible numerical rollover during update!" << std::endl;
+    }
 }
 
 
