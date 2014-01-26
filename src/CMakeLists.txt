@@ -15,4 +15,4 @@ add_executable(buddhabrot
     main.cpp
 )
 
-#target_link_libraries(FoldingAtomata)
+target_link_libraries(buddhabrot pthread)
