@@ -1,31 +1,23 @@
 
 #include "main.hpp"
+#include <algorithm>
 #include <fstream>
-#include <vector>
 #include <iostream>
 
-const int MAX_ITERATIONS = 100;
+const int MAX_DEPTH = 300;
+const int MAX_ITERATIONS = 10000;
 const std::size_t IMAGE_SIZE = 10;
-
-typedef std::vector<std::vector<unsigned short>> Matrix2D;
 
 
 int main(int argc, char** argv)
 {
     Matrix2D matrix;
-    for (std::size_t j = 0; j < IMAGE_SIZE; j++)
-        matrix.push_back(std::vector<unsigned short>(IMAGE_SIZE, 0));
+    initializeMatrix(matrix);
 
-    std::cout << "Printing..." << std::endl;
-    for (const auto &row : matrix)
-    {
-        for (const auto &cell : row)
-            std::cout << cell << " ";
-        std::cout << std::endl;
-    }
+    fillMatrixWithBuddhabrot(matrix);
 
-    writePPM();
-
+    printMatrix(matrix);
+    writeMatrixToPPM(matrix);
 
     return EXIT_SUCCESS;
     //return EXIT_FAILURE;
@@ -33,7 +25,15 @@ int main(int argc, char** argv)
 
 
 
-void getColorAt(float ptX, float ptY, int& r, int& g, int& b)
+void initializeMatrix(Matrix2D& matrix)
+{
+    for (std::size_t j = 0; j < IMAGE_SIZE; j++)
+        matrix.push_back(std::vector<unsigned int>(IMAGE_SIZE, 0));
+}
+
+
+
+void fillMatrixWithBuddhabrot(Matrix2D& matrix)
 {
     /*double ptYSq = pt.y * pt.y;
     double xOff = pt.x - 0.25;
@@ -41,34 +41,55 @@ void getColorAt(float ptX, float ptY, int& r, int& g, int& b)
     if (q * (q + xOff) < ptYSq / 4)
             return Color.BLACK; //http://en.wikipedia.org/wiki/Mandelbrot_fractal#Optimizations
 */
-    float x = 0, xSq = 0, y = 0, ySq = 0;
-    int iterations;
-    for (iterations = 0; iterations < MAX_ITERATIONS && (xSq + ySq <= 64); iterations++)
+    static std::mt19937 mersenneTwister;
+    static std::uniform_real_distribution<float> randomFloat(-2, 2);
+
+    std::vector<std::pair<float, float>> points;
+    points.resize(MAX_DEPTH);
+
+    for (int j = 0; j < MAX_ITERATIONS; j++)
     {
+        float ptX = randomFloat(mersenneTwister);
+        float ptY = randomFloat(mersenneTwister);
+
+        float x = 0, xSq = 0, y = 0, ySq = 0;
+        int iterations;
+        for (iterations = 0; iterations < MAX_DEPTH && (xSq + ySq <= 64); iterations++)
+        {
             y = 2 * x * y + ptY;
             x = xSq - ySq + ptX;
             xSq = x * x;
             ySq = y * y;
-    }
+        }
 
-    if (iterations == MAX_ITERATIONS)
-    {
-        r = g = b = 0;
-    }
-    else
-    {
-        r = g = b = 1;
-        /*
-        double mu = iterations - Math.log(Math.log(xSq + ySq)) / LOG_2;
-        float sin = (float)Math.sin(mu / viewport.getColoring()) / 2 + 0.5f;
-        float cos = (float)Math.cos(mu / viewport.getColoring()) / 2 + 0.5f;
-        return new Color(cos, cos, sin);*/
+        if (iterations == MAX_DEPTH) //given point has not escaped
+            for (const auto &point : points)
+                updateCounter(matrix, point.first, point.second);
     }
 }
 
 
 
-void writePPM()
+void updateCounter(Matrix2D& matrix, float fractalX, float fractalY)
+{
+
+}
+
+
+
+void printMatrix(Matrix2D& matrix)
+{
+    for (const auto &row : matrix)
+    {
+        for (const auto &cell : row)
+            std::cout << cell << " ";
+        std::cout << std::endl;
+    }
+}
+
+
+
+void writeMatrixToPPM(Matrix2D& matrix)
 {
     std::ofstream ppm;
     ppm.open("image.ppm", std::ofstream::out);
@@ -78,4 +99,16 @@ void writePPM()
     ppm << "0 0 255 0 255 255" << std::endl;
 
     ppm.close();
+}
+
+
+
+unsigned int getMax(Matrix2D& matrix)
+{
+    unsigned int max = 0;
+    for (const auto &row : matrix)
+        for (const auto &cell : row)
+            if (cell > max)
+                max = cell;
+    return max;
 }
