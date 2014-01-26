@@ -1,11 +1,12 @@
 
 #include "main.hpp"
 #include <algorithm>
+#include <complex>
 #include <fstream>
 #include <iostream>
 
-const int MAX_DEPTH = 500;
-const int MAX_ITERATIONS = 10000;
+const int MAX_DEPTH = 20;
+const int MAX_ITERATIONS = 50000;
 const int IMAGE_SIZE = 1024;
 
 
@@ -35,16 +36,10 @@ void initializeMatrix(Matrix2D& matrix)
 
 void fillMatrixWithBuddhabrot(Matrix2D& matrix)
 {
-    /*double ptYSq = pt.y * pt.y;
-    double xOff = pt.x - 0.25;
-    double q = Math.pow(xOff, 2) + ptYSq;
-    if (q * (q + xOff) < ptYSq / 4)
-            return Color.BLACK; //http://en.wikipedia.org/wiki/Mandelbrot_fractal#Optimizations
-*/
     static std::mt19937 mersenneTwister;
     static std::uniform_real_distribution<float> randomFloat(-2, 2);
 
-    std::vector<std::pair<float, float>> points;
+    std::vector<std::complex<float>> points;
     points.resize(MAX_DEPTH);
 
     for (int j = 0; j < MAX_ITERATIONS; j++)
@@ -52,21 +47,19 @@ void fillMatrixWithBuddhabrot(Matrix2D& matrix)
         float ptX = randomFloat(mersenneTwister);
         float ptY = randomFloat(mersenneTwister);
 
-        float x = 0, xSq = 0, y = 0, ySq = 0;
+        std::complex<float> c(ptX, ptY);
+        std::complex<float> z(0, 0);
         int iterations;
-        for (iterations = 0; iterations < MAX_DEPTH && (xSq + ySq <= 64); iterations++)
+        for (iterations = 0; iterations < MAX_DEPTH && norm(z) < 4; iterations++)
         {
-            y = 2 * x * y + ptY;
-            x = xSq - ySq + ptX;
-            xSq = x * x;
-            ySq = y * y;
-
-            points.push_back(std::make_pair(xSq, ySq));
+            z = z * z + c;
+            points.push_back(z);
         }
 
         if (iterations == MAX_DEPTH) //given point has not escaped
+            //updateCounter(matrix, ptX, ptY);
             for (const auto &point : points)
-                updateCounter(matrix, point.first, point.second);
+                updateCounter(matrix, point.real(), point.imag());
     }
 }
 
@@ -74,8 +67,8 @@ void fillMatrixWithBuddhabrot(Matrix2D& matrix)
 
 void updateCounter(Matrix2D& matrix, float fractalX, float fractalY)
 {
-    int x = (int)(fractalX * IMAGE_SIZE);
-    int y = (int)(fractalY * IMAGE_SIZE);
+    int x = (int)((fractalX + 2) / 4 * IMAGE_SIZE);
+    int y = (int)((fractalY + 2) / 4 * IMAGE_SIZE);
 
     if (x >= 0 && x < IMAGE_SIZE && y >= 0 && y < IMAGE_SIZE)
         matrix[(std::size_t)x][(std::size_t)y]++;
@@ -97,18 +90,28 @@ void printMatrix(Matrix2D& matrix)
 
 void writeMatrixToPPM(Matrix2D& matrix)
 {
+    long sum = 0;
+    for (const auto &row : matrix)
+        for (const auto &cell : row)
+            sum += cell;
+
+    float max = 0;
+    for (const auto &row : matrix)
+        for (const auto &cell : row)
+            if (cell / (float)sum > max)
+                max = cell / (float)sum;
+
     std::ofstream ppm;
     ppm.open("image.ppm", std::ofstream::out);
-
-    float max = (float)getMax(matrix);
 
     ppm << "P3 " << IMAGE_SIZE << " " << IMAGE_SIZE << " 255" << std::endl;
     for (const auto &row : matrix)
     {
         for (const auto &cell : row)
         {
-            int scale = (int)(cell / max * 255);
-            ppm << scale << " " << scale << " " << scale << " ";
+            float scale = cell / (float)sum / max;
+            int grayscale = (int)(scale * 255);
+            ppm << grayscale << " " << grayscale << " " << grayscale << " ";
         }
         ppm << std::endl;
     }
