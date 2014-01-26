@@ -4,9 +4,9 @@
 #include <fstream>
 #include <iostream>
 
-const int MAX_DEPTH = 300;
+const int MAX_DEPTH = 500;
 const int MAX_ITERATIONS = 10000;
-const std::size_t IMAGE_SIZE = 10;
+const int IMAGE_SIZE = 1024;
 
 
 int main(int argc, char** argv)
@@ -16,7 +16,7 @@ int main(int argc, char** argv)
 
     fillMatrixWithBuddhabrot(matrix);
 
-    printMatrix(matrix);
+    //printMatrix(matrix);
     writeMatrixToPPM(matrix);
 
     return EXIT_SUCCESS;
@@ -60,6 +60,8 @@ void fillMatrixWithBuddhabrot(Matrix2D& matrix)
             x = xSq - ySq + ptX;
             xSq = x * x;
             ySq = y * y;
+
+            points.push_back(std::make_pair(xSq, ySq));
         }
 
         if (iterations == MAX_DEPTH) //given point has not escaped
@@ -72,7 +74,11 @@ void fillMatrixWithBuddhabrot(Matrix2D& matrix)
 
 void updateCounter(Matrix2D& matrix, float fractalX, float fractalY)
 {
+    int x = (int)(fractalX * IMAGE_SIZE);
+    int y = (int)(fractalY * IMAGE_SIZE);
 
+    if (x >= 0 && x < IMAGE_SIZE && y >= 0 && y < IMAGE_SIZE)
+        matrix[(std::size_t)x][(std::size_t)y]++;
 }
 
 
@@ -94,9 +100,18 @@ void writeMatrixToPPM(Matrix2D& matrix)
     std::ofstream ppm;
     ppm.open("image.ppm", std::ofstream::out);
 
-    ppm << "P3 2 2 255" << std::endl;
-    ppm << "255 0 0 0 255 0" << std::endl;
-    ppm << "0 0 255 0 255 255" << std::endl;
+    float max = (float)getMax(matrix);
+
+    ppm << "P3 " << IMAGE_SIZE << " " << IMAGE_SIZE << " 255" << std::endl;
+    for (const auto &row : matrix)
+    {
+        for (const auto &cell : row)
+        {
+            int scale = (int)(cell / max * 255);
+            ppm << scale << " " << scale << " " << scale << " ";
+        }
+        ppm << std::endl;
+    }
 
     ppm.close();
 }
