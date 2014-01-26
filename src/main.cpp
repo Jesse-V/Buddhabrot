@@ -3,11 +3,14 @@
 #include <complex>
 #include <fstream>
 #include <future>
+#include <chrono>
 #include <iostream>
 
-const int MAX_DEPTH = 40;
-const int MAX_ITERATIONS = 250000;
-const int IMAGE_SIZE = 2048;
+
+const int MAX_DEPTH = 5000; //max iterations to follow the point
+const int SECONDS_TO_WORK = 20; //how long each thread should run for
+const int ITERATION_WORK_BURST = 5000; //how many iterations to go before checking the clock
+const int IMAGE_SIZE = 2048; //size of the resulting image, N * N
 
 
 std::vector<Matrix2D> matrices;
@@ -21,9 +24,12 @@ int main(int argc, char** argv)
     Matrix2D matrix1 = instance1.get();
     Matrix2D matrix2 = instance2.get();
 
+    std::cout << "Writing pre-images... ";
     writeMatrixToPPM(matrix1, "image_pre1.ppm");
     writeMatrixToPPM(matrix2, "image_pre2.ppm");
+    std::cout << "done" << std::endl;
 
+    std::cout << "Writing final image... ";
     Matrix2D totalMatrix;
     initializeMatrix(totalMatrix);
     for (int x = 0; x < IMAGE_SIZE; x++)
@@ -31,6 +37,7 @@ int main(int argc, char** argv)
             totalMatrix[x][y] = matrix1[x][y] + matrix2[x][y];
 
     writeMatrixToPPM(totalMatrix, "image.ppm");
+    std::cout << "done. Program complete." << std::endl;
 
     return EXIT_SUCCESS;
     //return EXIT_FAILURE;
@@ -59,7 +66,8 @@ void initializeMatrix(Matrix2D& matrix)
 
 void fillMatrixWithBuddhabrot(Matrix2D& matrix)
 {
-    std::cout << "INSTANCE LAUNCHED" << std::endl;
+    using namespace std::chrono;
+    std::cout << "Instance Launched. Expect shutdown in " << SECONDS_TO_WORK << " seconds." << std::endl;
 
     auto mersenneTwister = getMersenneTwister();
     std::uniform_real_distribution<float> randomFloat(-2, 2);
@@ -67,26 +75,33 @@ void fillMatrixWithBuddhabrot(Matrix2D& matrix)
     std::vector<std::complex<float>> points;
     points.resize(MAX_DEPTH);
 
-    for (int j = 0; j < MAX_ITERATIONS; j++)
+    int totalIterations = 0;
+    auto start = steady_clock::now();
+    while (duration_cast<seconds>(steady_clock::now() - start).count() < SECONDS_TO_WORK)
     {
-        float ptX = randomFloat(mersenneTwister);
-        float ptY = randomFloat(mersenneTwister);
-
-        std::complex<float> c(ptX, ptY);
-        std::complex<float> z(0, 0);
-        int iterations;
-        for (iterations = 0; norm(z) < 4 && iterations < MAX_DEPTH; iterations++)
+        for (int j = 0; j < ITERATION_WORK_BURST; j++)
         {
-            z = z * z + c;
-            points.push_back(z);
-        }
+            float ptX = randomFloat(mersenneTwister);
+            float ptY = randomFloat(mersenneTwister);
 
-        if (iterations == MAX_DEPTH) //given point has not escaped
-            for (const auto &point : points)
-                updateCounter(matrix, point.real(), point.imag());
+            std::complex<float> c(ptX, ptY);
+            std::complex<float> z(0, 0);
+            int iterations;
+            for (iterations = 0; norm(z) < 4 && iterations < MAX_DEPTH; iterations++)
+            {
+                z = z * z + c;
+                points.push_back(z);
+            }
+
+            if (iterations == MAX_DEPTH) //given point has not escaped
+                for (const auto &point : points)
+                    updateCounter(matrix, point.real(), point.imag());
+
+            totalIterations += ITERATION_WORK_BURST;
+        }
     }
 
-    std::cout << "INSTANCE ENDED" << std::endl;
+    std::cout << "Time expired, " << totalIterations << " iterations complete." << std::endl;
 }
 
 
@@ -136,8 +151,7 @@ void writeMatrixToPPM(Matrix2D& matrix, std::string filename)
         for (const auto &cell : row)
         {
             float scale = cell / (float)sum / max;
-            int grayscale = (int)(scale * 255);
-            ppm << grayscale << " ";
+            ppm << (int)(scale * 255) << " ";
         }
         ppm << std::endl;
     }
