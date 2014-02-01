@@ -1,5 +1,6 @@
 
 #include "main.hpp"
+#include <mpi.h>
 #include <complex>
 #include <fstream>
 #include <future>
@@ -7,52 +8,52 @@
 #include <iostream>
 
 
-const int MAX_THREADS = 3;
-const int MAX_DEPTH = 250; //max iterations to follow the point
-const int SECONDS_TO_WORK = 600; //how long each thread should run for
-const int ITERATION_WORK_BURST = 5000; //how many iterations to go before checking the clock
-const int IMAGE_SIZE = 1024; //size of the resulting image, N * N
+const int MAX_DEPTH = 5000; //max iterations to follow the point
+const int SECONDS_TO_WORK = 5 * 60; //how long each thread should run for
+const int ITERATION_WORK_BURST = 15000; //how many iterations to go before checking the clock
+const int IMAGE_SIZE = 640; //size of the resulting image, N * N
 
 
 int main(int argc, char** argv)
 {
-    std::vector<std::future<Matrix2D>> buddhabrots;
-    for (int threadID = 0; threadID < MAX_THREADS; threadID++)
-        buddhabrots.push_back(std::async(std::launch::async, generateBuddhabrotHistogram));
+    int processors, rank;
+    MPI_Init(&argc, &argv);
+    MPI_Comm_size(MPI_COMM_WORLD, &processors);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-    std::vector<Matrix2D> matrices;
-    for (int threadID = 0; threadID < MAX_THREADS; threadID++)
-        matrices.push_back(buddhabrots[threadID].get());
+    Matrix2D matrix = generateBuddhabrotHistogram();
 
-    std::cout << "Writing pre-images... ";
-    for (int threadID = 0; threadID < MAX_THREADS; threadID++)
+    if (rank == 0)
     {
-        std::stringstream filename;
-        filename << "image_pre" << threadID << ".ppm";
-        writeMatrixToPPM(matrices[threadID], filename.str());
-    }
-    std::cout << "done" << std::endl;
-
-    std::cout << "Writing final image... ";
-    Matrix2D totalMatrix;
-    initializeMatrix(totalMatrix);
-    for (int x = 0; x < IMAGE_SIZE; x++)
-    {
-        for (int y = 0; y < IMAGE_SIZE; y++)
+        for (int i = 1; i < processors; i++)
         {
-            for (int threadID = 0; threadID < MAX_THREADS; threadID++)
+            Matrix2D receivedMatrix;
+
+            for (int j = 0; j < IMAGE_SIZE; j++)
             {
-                auto old = totalMatrix[x][y];
-                totalMatrix[x][y] += matrices[threadID][x][y];
-                if (totalMatrix[x][y] < old)
-                    std::cout << "Possible numerical rollover during sum!" << std::endl;
+                std::vector<unsigned int> row(IMAGE_SIZE, 0);
+                MPI_Recv(row.data(), IMAGE_SIZE, MPI_UNSIGNED, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                receivedMatrix.push_back(row);
             }
+
+            for (int x = 0; x < IMAGE_SIZE; x++)
+                for (int y = 0; y < IMAGE_SIZE; y++)
+                    matrix[x][y] += receivedMatrix[x][y];
         }
+
+        std::cout << "Writing final image... ";
+        writeMatrixToPPM(matrix, "image.ppm");
+        std::cout << "done writing." << std::endl;
+    }
+    else
+    {
+        for (int row = 0; row < IMAGE_SIZE; row++)
+            MPI_Send(matrix[row].data(), IMAGE_SIZE, MPI_UNSIGNED, 0, 0, MPI_COMM_WORLD);
     }
 
-    writeMatrixToPPM(totalMatrix, "image.ppm");
-    std::cout << "done. Program complete." << std::endl;
+    std::cout << "Program complete for rank " << rank << std::endl;
 
+    MPI_Finalize();
     return EXIT_SUCCESS;
     //return EXIT_FAILURE;
 }
@@ -92,7 +93,7 @@ void fillMatrixWithBuddhabrot(Matrix2D& matrix)
     std::vector<std::complex<float>> points;
     points.resize(MAX_DEPTH);
 
-    int totalIterations = 0;
+    unsigned long totalIterations = 0;
     auto start = steady_clock::now();
     while (duration_cast<seconds>(steady_clock::now() - start).count() < SECONDS_TO_WORK)
     {
@@ -113,6 +114,7 @@ void fillMatrixWithBuddhabrot(Matrix2D& matrix)
             if (iterations == MAX_DEPTH) //given point has not escaped
                 for (const auto &point : points)
                     updateCounter(matrix, point.real(), point.imag());
+            points.clear();
 
             totalIterations += ITERATION_WORK_BURST;
         }
