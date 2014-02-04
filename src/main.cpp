@@ -8,9 +8,9 @@
 #include <iostream>
 
 
-const int MAX_DEPTH = 5000; //max iterations to follow the point
+const int MAX_DEPTH = 50000; //max iterations to follow the point
 const int SECONDS_TO_WORK = 5 * 60; //how long each thread should run for
-const int ITERATION_WORK_BURST = 15000; //how many iterations to go before checking the clock
+const int ITERATION_WORK_BURST = 50000; //how many iterations to go before checking the clock
 const int IMAGE_SIZE = 640; //size of the resulting image, N * N
 
 
@@ -42,7 +42,7 @@ int main(int argc, char** argv)
         }
 
         std::cout << "Writing final image... ";
-        writeMatrixToPPM(matrix, "image.ppm");
+        writeMatrixToPPM(matrix, "buddhabrot/image.ppm");
         std::cout << "done writing." << std::endl;
     }
     else

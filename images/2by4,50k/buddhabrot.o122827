@@ -1,0 +1,49 @@
+[sawtooth-03:29487] mca: base: component_find: unable to open /rc/tools/free/redhat_6_x86_64/openmpi-1.6.5-gcc-4.8/lib/openmpi/mca_btl_ofud: librdmacm.so.1: cannot open shared object file: No such file or directory (ignored)
+[sawtooth-03:29486] mca: base: component_find: unable to open /rc/tools/free/redhat_6_x86_64/openmpi-1.6.5-gcc-4.8/lib/openmpi/mca_btl_ofud: librdmacm.so.1: cannot open shared object file: No such file or directory (ignored)
+[sawtooth-03:29487] mca: base: component_find: unable to open /rc/tools/free/redhat_6_x86_64/openmpi-1.6.5-gcc-4.8/lib/openmpi/mca_btl_openib: librdmacm.so.1: cannot open shared object file: No such file or directory (ignored)
+[sawtooth-03:29486] mca: base: component_find: unable to open /rc/tools/free/redhat_6_x86_64/openmpi-1.6.5-gcc-4.8/lib/openmpi/mca_btl_openib: librdmacm.so.1: cannot open shared object file: No such file or directory (ignored)
+[sawtooth-03:29488] mca: base: component_find: unable to open /rc/tools/free/redhat_6_x86_64/openmpi-1.6.5-gcc-4.8/lib/openmpi/mca_btl_ofud: librdmacm.so.1: cannot open shared object file: No such file or directory (ignored)
+[sawtooth-03:29488] mca: base: component_find: unable to open /rc/tools/free/redhat_6_x86_64/openmpi-1.6.5-gcc-4.8/lib/openmpi/mca_btl_openib: librdmacm.so.1: cannot open shared object file: No such file or directory (ignored)
+[sawtooth-03:29489] mca: base: component_find: unable to open /rc/tools/free/redhat_6_x86_64/openmpi-1.6.5-gcc-4.8/lib/openmpi/mca_btl_ofud: librdmacm.so.1: cannot open shared object file: No such file or directory (ignored)
+[sawtooth-03:29487] mca: base: component_find: unable to open /rc/tools/free/redhat_6_x86_64/openmpi-1.6.5-gcc-4.8/lib/openmpi/mca_mtl_psm: libpsm_infinipath.so.1: cannot open shared object file: No such file or directory (ignored)
+[sawtooth-03:29486] mca: base: component_find: unable to open /rc/tools/free/redhat_6_x86_64/openmpi-1.6.5-gcc-4.8/lib/openmpi/mca_mtl_psm: libpsm_infinipath.so.1: cannot open shared object file: No such file or directory (ignored)
+[sawtooth-03:29489] mca: base: component_find: unable to open /rc/tools/free/redhat_6_x86_64/openmpi-1.6.5-gcc-4.8/lib/openmpi/mca_btl_openib: librdmacm.so.1: cannot open shared object file: No such file or directory (ignored)
+[sawtooth-03:29488] mca: base: component_find: unable to open /rc/tools/free/redhat_6_x86_64/openmpi-1.6.5-gcc-4.8/lib/openmpi/mca_mtl_psm: libpsm_infinipath.so.1: cannot open shared object file: No such file or directory (ignored)
+[sawtooth-03:29489] mca: base: component_find: unable to open /rc/tools/free/redhat_6_x86_64/openmpi-1.6.5-gcc-4.8/lib/openmpi/mca_mtl_psm: libpsm_infinipath.so.1: cannot open shared object file: No such file or directory (ignored)
+[sawtooth-00:07544] mca: base: component_find: unable to open /rc/tools/free/redhat_6_x86_64/openmpi-1.6.5-gcc-4.8/lib/openmpi/mca_btl_ofud: librdmacm.so.1: cannot open shared object file: No such file or directory (ignored)
+[sawtooth-00:07544] mca: base: component_find: unable to open /rc/tools/free/redhat_6_x86_64/openmpi-1.6.5-gcc-4.8/lib/openmpi/mca_btl_openib: librdmacm.so.1: cannot open shared object file: No such file or directory (ignored)
+[sawtooth-00:07544] mca: base: component_find: unable to open /rc/tools/free/redhat_6_x86_64/openmpi-1.6.5-gcc-4.8/lib/openmpi/mca_mtl_psm: libpsm_infinipath.so.1: cannot open shared object file: No such file or directory (ignored)
+[sawtooth-00:07545] mca: base: component_find: unable to open /rc/tools/free/redhat_6_x86_64/openmpi-1.6.5-gcc-4.8/lib/openmpi/mca_btl_ofud: librdmacm.so.1: cannot open shared object file: No such file or directory (ignored)
+[sawtooth-00:07545] mca: base: component_find: unable to open /rc/tools/free/redhat_6_x86_64/openmpi-1.6.5-gcc-4.8/lib/openmpi/mca_btl_openib: librdmacm.so.1: cannot open shared object file: No such file or directory (ignored)
+[sawtooth-00:07545] mca: base: component_find: unable to open /rc/tools/free/redhat_6_x86_64/openmpi-1.6.5-gcc-4.8/lib/openmpi/mca_mtl_psm: libpsm_infinipath.so.1: cannot open shared object file: No such file or directory (ignored)
+[sawtooth-00:07546] mca: base: component_find: unable to open /rc/tools/free/redhat_6_x86_64/openmpi-1.6.5-gcc-4.8/lib/openmpi/mca_btl_ofud: librdmacm.so.1: cannot open shared object file: No such file or directory (ignored)
+[sawtooth-00:07546] mca: base: component_find: unable to open /rc/tools/free/redhat_6_x86_64/openmpi-1.6.5-gcc-4.8/lib/openmpi/mca_btl_openib: librdmacm.so.1: cannot open shared object file: No such file or directory (ignored)
+[sawtooth-00:07546] mca: base: component_find: unable to open /rc/tools/free/redhat_6_x86_64/openmpi-1.6.5-gcc-4.8/lib/openmpi/mca_mtl_psm: libpsm_infinipath.so.1: cannot open shared object file: No such file or directory (ignored)
+[sawtooth-00:07547] mca: base: component_find: unable to open /rc/tools/free/redhat_6_x86_64/openmpi-1.6.5-gcc-4.8/lib/openmpi/mca_btl_ofud: librdmacm.so.1: cannot open shared object file: No such file or directory (ignored)
+[sawtooth-00:07547] mca: base: component_find: unable to open /rc/tools/free/redhat_6_x86_64/openmpi-1.6.5-gcc-4.8/lib/openmpi/mca_btl_openib: librdmacm.so.1: cannot open shared object file: No such file or directory (ignored)
+[sawtooth-00:07547] mca: base: component_find: unable to open /rc/tools/free/redhat_6_x86_64/openmpi-1.6.5-gcc-4.8/lib/openmpi/mca_mtl_psm: libpsm_infinipath.so.1: cannot open shared object file: No such file or directory (ignored)
+Instance Launched. Expect shutdown in 300 seconds.
+Instance Launched. Expect shutdown in 300 seconds.
+Instance Launched. Expect shutdown in 300 seconds.
+Instance Launched. Expect shutdown in 300 seconds.
+Instance Launched. Expect shutdown in 300 seconds.
+Instance Launched. Expect shutdown in 300 seconds.
+Instance Launched. Expect shutdown in 300 seconds.
+Instance Launched. Expect shutdown in 300 seconds.
+Time expired, 32500000000 iterations complete.
+Program complete for rank 2
+Time expired, 32500000000 iterations complete.
+Time expired, 32500000000 iterations complete.
+Time expired, 32500000000 iterations complete.
+Time expired, 32500000000 iterations complete.
+Program complete for rank 4
+Program complete for rank 6
+Program complete for rank 7
+Time expired, 35000000000 iterations complete.
+Program complete for rank 5
+Time expired, 17500000000 iterations complete.
+Program complete for rank 3
+Time expired, 17500000000 iterations complete.
+Program complete for rank 1
+Writing final image... done writing.
+Program complete for rank 0
