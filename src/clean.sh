@@ -1,3 +1,3 @@
 #!/bin/sh
-rm -f buddhabrot/*.ppm buddhabrot buddhabrot.*
+rm -f buddhabrot buddhabrot.*
 echo "Successfully cleaned the build directory."

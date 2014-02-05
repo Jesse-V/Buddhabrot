@@ -3,8 +3,8 @@
 # the qsub command line.
 
 #PBS -N buddhabrot
-#PBS -l nodes=2:ppn=4
-#PBS -l walltime=00:05:30
+#PBS -l nodes=5:ppn=5
+#PBS -l walltime=06:05:00
 #PBS -M jvictors@jessevictors.com
 
 #PBS -j oe
@@ -16,5 +16,4 @@ use OpenMPI-GCC-4.8
 #LD_LIBRARY_PATH=/home/A01514050:$LD_LIBRARY_PATH
 #export LD_LIBRARY_PATH
 
-mpirun -np $PBS_NP buddhabrot/buddhabrot
-convert buddhabrot/image.ppm -define png:bit-depth=16 -define png:color-type=0 -quality 100 buddhabrot/image.png
+mpirun -np $PBS_NP buddhabrot_raw/buddhabrot
